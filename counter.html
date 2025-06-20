@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS variable demo</title>
+    <script>
+        let counter=0;
+        function updateCounter(){
+            counter++;
+            document.getElementById("counterDisplay").innerHTML= "The counter is at " + counter;
+        }
+    </script>
+</head>
+<body>
+    <h1 id="counterDisplay">The counter is 0</h1>
+    <button onclick="updateCounter()">Update Counter</button>
+</body>
+</html>

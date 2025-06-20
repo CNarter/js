@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- The head section contains metadata and links to external resources -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Budget Calculator</title>
+    
+    <!-- Link to Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Link to Google Fonts for a clean, modern font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Link to Chart.js for creating the budget visualization chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Basic CSS styling */
+        body {
+            font-family: 'Inter', sans-serif; /* Sets the default font for the page */
+        }
+
+        /* Styles for the results section to create a smooth expand/collapse animation */
+        #results {
+            max-height: 0; /* Initially, the results section is hidden */
+            overflow: hidden; /* Hides any content that overflows the max-height */
+            /* Defines the transition effect for max-height and margin-top over 0.5 seconds */
+            transition: max-height 0.7s ease-in-out, margin-top 0.7s ease-in-out, opacity 0.7s ease-in-out;
+            opacity: 0; /* Start with opacity 0 to fade in */
+        }
+
+        #results.show {
+            max-height: 1000px; /* A large enough value to show all content when visible */
+            opacity: 1; /* Fade in to full opacity */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Main container for the application, centered on the page -->
+    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto min-h-screen lg:py-0">
+        <!-- The card that holds the calculator content -->
+        <div class="w-full bg-white rounded-lg shadow-xl dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+            <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                <!-- Main title of the application -->
+                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                    Monthly Budget Calculator
+                </h1>
+                
+                <!-- The form where users input their financial details -->
+                <form id="budgetForm" class="space-y-4 md:space-y-6" action="#">
+                    <!-- Monthly Income Input -->
+                    <div>
+                        <label for="income" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monthly Income (£)</label>
+                        <input type="number" name="income" id="income" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="2500" required="">
+                    </div>
+                    <!-- Monthly Council Tax Input -->
+                    <div>
+                        <label for="councilTax" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monthly Council Tax (£)</label>
+                        <input type="number" name="councilTax" id="councilTax" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="150" required="">
+                    </div>
+                    <!-- Monthly Rent/Mortgage Input -->
+                    <div>
+                        <label for="rent" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monthly Rent/Mortgage (£)</label>
+                        <input type="number" name="rent" id="rent" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="1200" required="">
+                    </div>
+                    <!-- Monthly Utility Bills Input -->
+                    <div>
+                        <label for="utilities" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monthly Utility Bills (£)</label>
+                        <input type="number" name="utilities" id="utilities" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="200" required="">
+                    </div>
+                    
+                    <!-- The button to trigger the calculation -->
+                    <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Calculate</button>
+                </form>
+
+                <!-- The section to display the results, initially hidden via CSS -->
+                <div id="results" class="space-y-4">
+                    <hr class="dark:border-gray-600">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Your Results:</h2>
+                    
+                    <!-- Display for Money Left After Bills -->
+                    <div class="p-4 bg-gray-100 rounded-lg dark:bg-gray-700">
+                        <p class="font-medium text-gray-800 dark:text-gray-200">Money left after bills:</p>
+                        <p id="monthlyLeft" class="text-2xl font-bold text-green-600 dark:text-green-400">£0.00</p>
+                    </div>
+                    
+                    <!-- Display for Weekly Spending Money -->
+                    <div class="p-4 bg-gray-100 rounded-lg dark:bg-gray-700">
+                        <p class="font-medium text-gray-800 dark:text-gray-200">Weekly spending money:</p>
+                        <p id="weeklyLeft" class="text-2xl font-bold text-blue-600 dark:text-blue-400">£0.00</p>
+                    </div>
+
+                    <!-- Container for the budget breakdown chart -->
+                    <div class="p-4 bg-gray-100 rounded-lg dark:bg-gray-700">
+                         <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Budget Breakdown:</h3>
+                         <!-- The canvas element is where Chart.js will draw the chart -->
+                         <canvas id="budgetChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Element References ---
+        // Get references to the HTML elements we need to interact with using their unique IDs.
+        const budgetForm = document.getElementById('budgetForm');
+        const resultsDiv = document.getElementById('results');
+        const monthlyLeftEl = document.getElementById('monthlyLeft');
+        const weeklyLeftEl = document.getElementById('weeklyLeft');
+        const chartCanvas = document.getElementById('budgetChart'); // Get the canvas element for the chart
+        let budgetChart; // Declare a variable to hold our chart instance. This allows us to destroy it before creating a new one.
+
+        // --- Event Listener ---
+        // Listen for the form's 'submit' event, which happens when the "Calculate" button is clicked.
+        budgetForm.addEventListener('submit', function(event) {
+            // event.preventDefault() stops the default browser behavior of reloading the page on form submission.
+            event.preventDefault(); 
+
+            // --- Input Gathering ---
+            // Get the values from the input fields.
+            // parseFloat() converts the text input into a number.
+            // '|| 0' ensures that if the input is empty or invalid, it defaults to 0, preventing errors.
+            const income = parseFloat(document.getElementById('income').value) || 0;
+            const councilTax = parseFloat(document.getElementById('councilTax').value) || 0;
+            const rent = parseFloat(document.getElementById('rent').value) || 0;
+            const utilities = parseFloat(document.getElementById('utilities').value) || 0;
+
+            // --- Calculations ---
+            // 1. Calculate the sum of all monthly expenses.
+            const totalExpenses = councilTax + rent + utilities;
+            // 2. Calculate the money left after subtracting expenses from income.
+            const monthlyLeft = income - totalExpenses;
+            // 3. Calculate the weekly spending money. We use 4.33 weeks as an average for a month.
+            const weeklyLeft = monthlyLeft / 4.33;
+
+            // --- Display Results ---
+            // Update the text content of the result elements with the calculated values.
+            // .toFixed(2) formats the number to always have two decimal places, which is standard for currency.
+            monthlyLeftEl.textContent = `£${monthlyLeft.toFixed(2)}`;
+            weeklyLeftEl.textContent = `£${weeklyLeft.toFixed(2)}`;
+
+            // --- Dynamic Styling for Results ---
+            // Change the text color of the results based on whether they are positive or negative.
+            // For 'Money left after bills':
+            if (monthlyLeft < 0) {
+                monthlyLeftEl.classList.remove('text-green-600', 'dark:text-green-400');
+                monthlyLeftEl.classList.add('text-red-600', 'dark:text-red-400');
+            } else {
+                monthlyLeftEl.classList.remove('text-red-600', 'dark:text-red-400');
+                monthlyLeftEl.classList.add('text-green-600', 'dark:text-green-400');
+            }
+            // For 'Weekly spending money':
+            if (weeklyLeft < 0) {
+                weeklyLeftEl.classList.remove('text-blue-600', 'dark:text-blue-400');
+                weeklyLeftEl.classList.add('text-red-600', 'dark:text-red-400');
+            } else {
+                weeklyLeftEl.classList.remove('text-red-600', 'dark:text-red-400');
+                weeklyLeftEl.classList.add('text-blue-600', 'dark:text-blue-400');
+            }
+
+            // --- Chart Creation ---
+            // Before creating a new chart, check if one already exists. If so, destroy it.
+            // This prevents charts from drawing on top of each other on subsequent calculations.
+            if (budgetChart) {
+                budgetChart.destroy();
+            }
+
+            // Create a new chart instance using Chart.js
+            budgetChart = new Chart(chartCanvas, {
+                type: 'doughnut', // Specifies the chart type as a doughnut chart.
+                data: {
+                    labels: ['Council Tax', 'Rent/Mortgage', 'Utilities', 'Money Left'], // Labels for each segment of the chart.
+                    datasets: [{
+                        label: 'Budget Breakdown', // A label for the dataset.
+                        // The actual data points for the chart. We use Math.max(0, monthlyLeft) to ensure the 'Money Left' value isn't negative in the chart.
+                        data: [councilTax, rent, utilities, Math.max(0, monthlyLeft)],
+                        // Colors for each segment.
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)'
+                        ],
+                        // Border colors for each segment.
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1 // The width of the border around each segment.
+                    }]
+                },
+                options: {
+                    responsive: true, // Makes the chart resize with its container.
+                    plugins: {
+                        legend: {
+                            position: 'top', // Positions the legend at the top of the chart.
+                        },
+                        title: {
+                            display: false // We are not displaying the chart's main title here.
+                        }
+                    }
+                }
+            });
+
+
+            // --- Show Results Section ---
+            // Show the results section with a smooth transition by adding the 'show' class.
+            if (!resultsDiv.classList.contains('show')) {
+                resultsDiv.style.marginTop = '1.5rem'; // Add some space above the results when they appear.
+                resultsDiv.classList.add('show');
+            }
+        });
+    </script>
+</body>
+</html>

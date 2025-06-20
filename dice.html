@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script>
+        function throwDice (numbSides){
+            // Simulates throwing a dice between 1 and numbSides
+            return Math.floor (Math.random()*numbSides) + 1;
+        }
+        function outputDice (){
+            
+            let maxNumber = document.getElementById("sides").value;
+            let numbSides = throwDice(maxNumber);
+            document.getElementById("numberThrown").innerHTML = numbSides;
+                    }
+        //for (i=0;i<10;i++)
+        //{console.log(throwDice(5))
+        //}
+    </script>
+</head>
+<body>
+    <h1>Dice Thrower</h1>
+    <label for="">Enter the number of sides on your dice</label>
+    <input type="number" id="sides" >
+    <button onclick="outputDice()">Throw the Dice</button>
+    <div id ="numberThrown"> </div>
+</body>
+</html>

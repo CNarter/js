@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Switcher</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for a nice, clean font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Apply the Inter font to the body */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Default theme styles on page load */
+            background-color: yellow;
+            color: darkblue;
+            /* Smooth transition for color changes */
+            transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+        }
+
+        /* Styles for the light theme (black on white) */
+        body.light-theme {
+            background-color: white;
+            color: black;
+        }
+
+        /* Styles for the dark theme (white on black) */
+        body.dark-theme {
+            background-color: #000000;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main container to center content -->
+    <div class="min-h-screen flex flex-col items-center justify-center p-4">
+        
+        <!-- Content card -->
+        <div class="max-w-2xl w-full text-center">
+        
+            <!-- Buttons container -->
+            <div class="flex justify-center items-center space-x-4 mb-8">
+                
+                <!-- Button to switch to Light Theme -->
+                <button id="light-theme-btn" class="bg-gray-200 text-black font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-transform transform hover:scale-105">
+                    Lighten up
+                </button>
+                
+                <!-- Button to switch to Dark Theme -->
+                <button id="dark-theme-btn" class="bg-gray-800 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-transform transform hover:scale-105">
+                    Paint it Black
+                </button>
+            </div>
+            
+            <!-- Sample text content -->
+            <div class="text-left">
+                <h1 class="text-4xl font-bold mb-4">Activity 1</h1>
+                <h2>Create a webpage with two buttons:</h2>
+                <p class="mb-4 text-lg">
+                
+One button should make the body text white on a black background<br>
+
+The other button should make the body text black on a white background
+                </p>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        // Get references to the buttons and the body element
+        const lightThemeBtn = document.getElementById('light-theme-btn');
+        const darkThemeBtn = document.getElementById('dark-theme-btn');
+        const body = document.body;
+
+        // --- Event Listeners ---
+
+        // Add a click event listener to the "Paint it Black" button
+        darkThemeBtn.addEventListener('click', () => {
+            // Remove the light theme class (if present) and add the dark theme class
+            body.classList.remove('light-theme');
+            body.classList.add('dark-theme');
+        });
+
+        // Add a click event listener to the "Lighten up" button
+        lightThemeBtn.addEventListener('click', () => {
+            // Remove the dark theme class (if present) and add the light theme class
+            body.classList.remove('dark-theme');
+            body.classList.add('light-theme');
+        });
+    </script>
+
+</body>
+</html>
